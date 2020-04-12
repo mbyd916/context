@@ -32,7 +32,7 @@ type Result struct {
 // Search sends query to Google search and returns the results.
 func Search(ctx context.Context, query string) (Results, error) {
 	// Prepare the Googlee Search API request.
-	req, err := http.NewRequest("GET", "https://ajax.googleapis.com/ajax/services/search/web?v=1.0", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://ajax.googleapis.com/ajax/services/search/web?v=1.0", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +80,6 @@ func Search(ctx context.Context, query string) (Results, error) {
 
 func httpDo(ctx context.Context, req *http.Request, f func(*http.Response, error) error) error {
 	c := make(chan error, 1)
-	// !important: must wrap req with ctx
-	req = req.WithContext(ctx)
 	go func() { c <- f(http.DefaultClient.Do(req)) }()
 
 	select {
